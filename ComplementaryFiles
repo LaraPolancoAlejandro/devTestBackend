@@ -1,0 +1,46 @@
+//Add to the bottom of the Main
+            Console.WriteLine("¿Deseas ordenar los anuncios en orden ascendente por fecha? (s/n): ");
+            string sortOrder = Console.ReadLine();
+            bool ascendingOrder = sortOrder.ToLower() == "s" ? true : false;
+
+
+            List<Announcement> filteredAnnouncements = await dataServices.GetFilteredAnnouncementsAsync(ascendingOrder);
+
+            // Muestra los anuncios ordenados
+            if (filteredAnnouncements != null && filteredAnnouncements.Count > 0)
+            {
+                Console.WriteLine("Anuncios ordenados:");
+                foreach (var announcement in filteredAnnouncements)
+                {
+                    Console.WriteLine($"ID: {announcement.Id}, Título: {announcement.Title}, Fecha: {announcement.Date}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No se encontraron anuncios.");
+            }
+
+
+//Add to the bottom of the DataService
+        public async Task<List<Announcement>> GetFilteredAnnouncementsAsync(bool ascendingOrder)
+        {
+            using (AppDbContext db = new AppDbContext())
+            {
+                IQueryable<Announcement> query = db.Announcements.AsQueryable();
+
+                query = ascendingOrder ? query.OrderBy(a => a.Date) : query.OrderByDescending(a => a.Date);
+
+                return await query.ToListAsync();
+            }
+        }
+
+
+//For SQL SERVER
+
+SELECT * FROM Announcements
+ORDER BY Date DESC;
+
+//FOR SQL server but also using keywords
+SELECT * FROM Announcements
+WHERE Title LIKE '%keyword%'
+ORDER BY Date DESC;
